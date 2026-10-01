@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aventura Windows Forms</title>
+<style>
+:root{--bg:#f1f3ff;--ink:#1b1b3a;--mute:#555a7a;--card:#fff;--line:#d7dbf2;--pri:#4f46e5;--onpri:#fff;--ok:#16a34a;--bad:#dc2626;--code:#14142b;--codeink:#e6e9ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f0f24;--ink:#ecedff;--mute:#a3a8d0;--card:#1a1a38;--line:#2f2f5c;--pri:#8b85ff;--onpri:#0f0f24;--ok:#4ade80;--bad:#ff8a8a}}
+:root[data-theme="dark"]{--bg:#0f0f24;--ink:#ecedff;--mute:#a3a8d0;--card:#1a1a38;--line:#2f2f5c;--pri:#8b85ff;--onpri:#0f0f24;--ok:#4ade80;--bad:#ff8a8a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:16px 14px 50px}
+code,pre{font-family:Consolas,"Cascadia Mono",Menlo,monospace}
+code{background:color-mix(in srgb,var(--pri) 15%,transparent);padding:1px 5px;border-radius:4px;font-size:.9em}
+p{margin:0 0 10px}h2{margin:0 0 8px;font-size:1.3rem}h3{margin:14px 0 6px;font-size:1rem}
+button,select,input{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,.c:focus-visible{outline:3px solid #a3e635;outline-offset:2px}
+.hdr{background:linear-gradient(120deg,#4f46e5,#7c3aed 60%,#db2777);color:#fff;border-radius:16px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.hdr h1{margin:0;font-size:clamp(1.4rem,4.5vw,2rem);line-height:1.1}
+.hdr small{display:block;opacity:.9}
+.xp{flex:1 1 220px}.xp .bar{height:12px;background:rgba(255,255,255,.3);border-radius:8px;overflow:hidden;margin-top:4px}
+.xp i{display:block;height:100%;width:0;background:#a3e635;transition:width .5s}
+.lv{background:#fff;color:#4f46e5;border-radius:20px;padding:4px 14px;font-weight:700;white-space:nowrap}
+.map{display:flex;gap:4px;margin:18px 0 14px;position:relative}
+.map::before{content:"";position:absolute;left:8%;right:8%;top:23px;height:4px;background:var(--line)}
+.map button{position:relative;flex:1;background:none;border:0;cursor:pointer;display:grid;justify-items:center;gap:4px;font-size:.78rem;color:var(--mute);padding:0}
+.n{width:48px;height:48px;border-radius:50%;background:var(--card);border:3px solid var(--line);display:grid;place-items:center;font-size:1.35rem;transition:transform .2s,background .3s}
+.map button[aria-current=true] .n{border-color:var(--pri);transform:scale(1.15);box-shadow:0 0 0 5px color-mix(in srgb,var(--pri) 25%,transparent)}
+.map button.done .n{background:var(--ok);border-color:var(--ok)}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+@media(max-width:880px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.byte{display:flex;gap:10px;align-items:flex-start;margin-top:14px}
+.face{font-size:2.3rem;line-height:1}
+.bub{flex:1;background:color-mix(in srgb,var(--pri) 12%,var(--card));border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:.93rem}
+.next{margin-top:8px;padding:7px 14px;border:0;border-radius:8px;background:var(--pri);color:var(--onpri);cursor:pointer;font-weight:600}
+.mis{list-style:none;padding:0;margin:0}
+.mis li{padding:6px 0 6px 32px;position:relative}
+.mis li::before{content:"";position:absolute;left:2px;top:8px;width:18px;height:18px;border:2px solid var(--line);border-radius:50%}
+.mis li.ok::before{background:var(--ok);border-color:var(--ok);animation:pop .4s}
+.mis li.ok::after{content:"✓";position:absolute;left:7px;top:5px;color:#fff;font-size:.82rem;font-weight:700}
+.quiz button{display:block;width:100%;text-align:left;margin:5px 0;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:transparent;cursor:pointer}
+.quiz button.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 20%,transparent)}
+.quiz button.no{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 20%,transparent);animation:shake .3s}
+.tool{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card);cursor:grab;user-select:none;font-weight:600}
+.chip:hover{border-color:var(--pri);transform:translateY(-2px)}
+.mode{margin-left:auto;display:flex;border:2px solid var(--pri);border-radius:10px;overflow:hidden}
+.mode button{border:0;background:none;padding:7px 12px;cursor:pointer}
+.mode button[aria-pressed=true]{background:var(--pri);color:var(--onpri);font-weight:700}
+.fic{font-size:.88rem;color:var(--mute);min-height:1.4em;margin:6px 0 10px}
+.win{background:#f0f0f0;border:1px solid #777;box-shadow:0 8px 22px rgba(0,0,0,.28);color:#111;border-radius:8px 8px 0 0;overflow:hidden}
+.tb{background:linear-gradient(90deg,#0a64c8,#2b88e6);color:#fff;padding:5px 10px;font-size:.85rem;display:flex;justify-content:space-between}
+.cv{position:relative;height:270px;overflow:hidden;background-image:radial-gradient(#c4c4c4 1px,transparent 1px);background-size:16px 16px}
+.cv.over{outline:3px dashed var(--pri);outline-offset:-3px}
+.c{position:absolute;padding:3px 5px;border:2px solid transparent;border-radius:4px;max-width:96%}
+.edit .c{cursor:move;outline:1px dashed #8a9;touch-action:none}
+.edit .c *{pointer-events:none}
+.c.sel{border-color:#0078d7;background-clip:padding-box}
+.c.hid{opacity:.35}
+.c input[type=text]{width:170px;padding:4px 6px;border:1px solid #777;background:#fff;color:#111;border-radius:2px;font:inherit}
+.c button{padding:5px 18px;border:1px solid #adadad;background:#e1e1e1;color:#111;border-radius:3px;font:inherit}
+.c button:enabled:hover{background:#e5f1fb;border-color:#0078d7}.c button:enabled:active{transform:scale(.93)}
+.c button:disabled,.c input:disabled{opacity:.5}
+.c.fl{animation:fl .6s}.cv.shk{animation:shake .35s}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:#667;font-style:italic;text-align:center;padding:12px}
+.props{display:grid;grid-template-columns:max-content 1fr;gap:7px 12px;align-items:center;margin-top:10px;font-size:.92rem}
+.props b{font-family:Consolas,monospace;color:var(--pri)}
+.props input[type=text],.props select{width:100%;padding:5px 7px;background:var(--card);border:1px solid var(--line);border-radius:6px}
+.sw{display:flex;gap:6px}.sw button{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw button.on{border-color:var(--ink);transform:scale(1.2)}
+.del{grid-column:1/-1;justify-self:start;padding:5px 12px;border:1px solid var(--bad);color:var(--bad);background:none;border-radius:8px;cursor:pointer}
+pre{background:var(--code);color:var(--codeink);padding:12px 14px;border-radius:10px;overflow-x:auto;font-size:.84rem;line-height:1.55;margin:6px 0 0;min-height:60px}
+pre.glow{animation:glow .7s}
+.kw{color:#7cc4ff}.st{color:#ffd37a}.cm{color:#8fa0c8;font-style:normal}.ty{color:#86efac}
+.vars{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.box{border:2px solid var(--pri);border-radius:10px;padding:6px 14px;text-align:center;min-width:76px;animation:pop .4s}
+.box small{display:block;color:var(--mute)}.box b{font-family:Consolas,monospace}.box span{display:block;font-size:1.3rem;font-weight:700}
+.msg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:9;padding:16px}
+.msg>div{background:#f0f0f0;color:#111;min-width:240px;max-width:92%;border:1px solid #777;border-radius:6px;overflow:hidden}
+.msg p{padding:20px 18px;margin:0}.msg button{margin:0 14px 14px auto;display:block;padding:5px 24px;border:1px solid #adadad;background:#e1e1e1;color:#111}
+.cf{position:fixed;left:50%;top:35%;font-size:1.6rem;pointer-events:none;z-index:20;animation:cf 1.2s ease-out forwards}
+.note{font-size:.85rem;color:var(--mute)}
+@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes fl{from{outline:3px solid #a3e635;transform:scale(1.18)}to{outline:3px solid transparent;transform:scale(1)}}
+@keyframes glow{from{box-shadow:0 0 0 3px #a3e635}to{box-shadow:0 0 0 0 transparent}}
+@keyframes cf{to{transform:translate(var(--dx),var(--dy)) rotate(360deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="hdr">
+  <div><h1>🪟 Aventura Windows Forms</h1><small>Construye tu primera app en C#, paso a paso</small></div>
+  <div class="xp"><div id="xpt">0 XP</div><div class="bar"><i id="xpb"></i></div></div>
+  <div class="lv" id="lv">Nivel 1</div>
+</div>
+<div class="map" id="map"></div>
+<div class="grid">
+  <section class="card" id="lesson" aria-live="polite"></section>
+  <section class="card">
+    <div class="tool" id="tool"></div>
+    <div class="fic" id="fic">Pulsa o arrastra un control hasta el formulario.</div>
+    <div class="win"><div class="tb"><b id="ttl">Form1</b><span>—&nbsp; □ &nbsp;✕</span></div><div class="cv edit" id="cv"></div></div>
+    <div id="props"></div>
+    <div class="vars" id="vars"></div>
+    <h3>Tu código C#</h3>
+    <pre id="code"></pre>
+  </section>
+</div>
+</main>
+<div id="modal"></div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')};
+var T={Label:['🏷️','label','Muestra texto que el usuario no puede editar.'],TextBox:['⌨️','textBox','Una caja donde el usuario escribe. Lo escrito es siempre texto (string).'],Button:['🔘','button','Un botón: al pulsarlo ocurre el evento Click.'],CheckBox:['☑️','checkBox','Casilla de sí o no. Su propiedad Checked es true o false.']};
+var COL={'':'','Yellow':'#ffe066','LightGreen':'#a8e6b0','LightCoral':'#f4a0a0','LightBlue':'#a9d2f5','Plum':'#e5b8f0'};
+var S={cs:[],sel:null,run:false,n:{},k:0,lesson:0,got:{},quizOk:{},clicked:false,summed:false,moved:false,vars:null,xp:0,done:{}};
+var first=function(t,i){return S.cs.filter(function(c){return c.type===t})[i||0]};
+var cnt=function(t){return S.cs.filter(function(c){return c.type===t}).length};
+var byId=function(id){return S.cs.filter(function(c){return String(c.id)===String(id)})[0]};
+
+var L=[
+{n:'Form',i:'🪟',t:'Qué es un formulario',b:'<p>La ventana de cualquier programa de Windows es un <strong>formulario</strong> (<code>Form</code>). Es un tablero vacío donde pegamos piezas llamadas <strong>controles</strong>.</p><p>Prueba: arrastra un <code>Label</code> hasta la ventana y muévelo con el ratón.</p>',
+ m:[['Agrega un Label al formulario',function(){return cnt('Label')>0}],['Arrastra un control dentro del formulario',function(){return S.moved}],['Cambia el Text de un Label',function(){return S.cs.some(function(c){return c.type==='Label'&&c.text!==c.name})}]],
+ q:['¿Cómo se llama en C# la ventana de un programa?',['Control','Formulario (Form)','Evento'],1]},
+{n:'Controles',i:'🧩',t:'Los controles',b:'<p>Cada control tiene un trabajo: <code>Label</code> muestra texto, <code>TextBox</code> recibe texto, <code>Button</code> ejecuta algo al pulsarlo y <code>CheckBox</code> guarda un sí o un no.</p><p>Pasa el ratón por encima de la caja de herramientas para leer qué hace cada uno.</p>',
+ m:[['Agrega un Label, un TextBox y un Button',function(){return cnt('Label')&&cnt('TextBox')&&cnt('Button')}],['Agrega un CheckBox',function(){return cnt('CheckBox')>0}]],
+ q:['¿Qué control usas para que alguien escriba su nombre?',['TextBox','Label','Button'],0]},
+{n:'Propiedades',i:'🎨',t:'Las propiedades',b:'<p>Las <strong>propiedades</strong> son las características de un control, como el color o el texto. Se escriben <code>nombre.Propiedad = valor;</code></p><p>Selecciona un control y juega con el panel: mira cómo el código cambia al instante.</p>',
+ m:[['Cambia el BackColor de un control',function(){return S.cs.some(function(c){return c.color})}],['Cambia el tamaño de letra (Font)',function(){return S.cs.some(function(c){return c.fs!==10})}],['Desactiva un control (Enabled)',function(){return S.cs.some(function(c){return !c.enabled})}]],
+ q:['¿Qué propiedad cambia lo que dice un control?',['Enabled','Text','Visible'],1]},
+{n:'Eventos',i:'⚡',t:'Los eventos',b:'<p>Un programa con ventanas se queda esperando. Cuando el usuario hace algo (un clic) ocurre un <strong>evento</strong> y se ejecuta tu código.</p><p>Como un timbre: pulsarlo es el evento, y que suene la casa es la respuesta. Dale una acción a un botón, cambia a <em>Ejecutar</em> y púlsalo.</p>',
+ m:[['Dale una acción Click a un Button',function(){return S.cs.some(function(c){return c.type==='Button'&&c.action})}],['Pasa a Ejecutar y pulsa el botón',function(){return S.clicked}]],
+ q:['Pulsar un botón es un…',['Evento','Formulario','Texto'],0]},
+{n:'Variables',i:'📦',t:'Variables y tipos',b:'<p>Una <strong>variable</strong> es una caja con nombre donde guardas un dato. Cada caja tiene un <strong>tipo</strong>: <code>string</code> es texto, <code>int</code> es un número entero.</p><p>Un TextBox entrega texto; para sumar usamos <code>int.Parse</code>. Arma la suma y mira las cajas llenarse.</p>',
+ m:[['Agrega 2 TextBox, 1 Label y 1 Button',function(){return cnt('TextBox')>1&&cnt('Label')&&cnt('Button')}],['Elige la acción «Sumar dos números»',function(){return S.cs.some(function(c){return c.action==='sum'})}],['Ejecuta y suma dos números',function(){return S.summed}]],
+ q:['¿Qué tipo guarda el número entero 25?',['string','int','Label'],1]}
+];
+var ACT={'':'Ninguna',msg:'Mostrar un mensaje',copy:'Copiar el TextBox al Label',color:'Pintar el Label de amarillo',sum:'Sumar dos números'};
+
+function body(c){var l=first('Label'),t=first('TextBox'),t2=first('TextBox',1),a=c.action;
+ if(a==='msg')return['MessageBox.Show("¡Hola desde C#!");'];
+ if(!l)return['// Agrega un Label para el resultado'];
+ if(a==='copy')return t?[l.name+'.Text = '+t.name+'.Text;']:['// Agrega un TextBox'];
+ if(a==='color')return[l.name+'.BackColor = Color.Yellow;'];
+ if(a==='sum')return t2?['int a = int.Parse('+t.name+'.Text);','int b = int.Parse('+t2.name+'.Text);','int suma = a + b;',l.name+'.Text = suma.ToString();']:['// Agrega dos TextBox'];
+ return[]}
+function genCode(){
+ if(!S.cs.length)return'// Tu formulario está vacío.\n// Arrastra un control para empezar.';
+ var o=[];
+ S.cs.forEach(function(c){o.push(c.name+'.Text = "'+c.text.replace(/"/g,'\\"')+'";');
+  o.push(c.name+'.Location = new Point('+Math.round(c.x)+', '+Math.round(c.y)+');');
+  if(c.fs!==10)o.push(c.name+'.Font = new Font("Segoe UI", '+c.fs+');');
+  if(!c.enabled)o.push(c.name+'.Enabled = false;');
+  if(!c.visible)o.push(c.name+'.Visible = false;');
+  if(c.color)o.push(c.name+'.BackColor = Color.'+c.color+';')});
+ S.cs.forEach(function(c){if(c.type==='Button'&&c.action){o.push('','private void '+c.name+'_Click(object sender, EventArgs e)','{');body(c).forEach(function(x){o.push('    '+x)});o.push('}')}});
+ return o.join('\n')}
+function hl(s){return esc(s).replace(/(\/\/.*)$/gm,'<i class="cm">$1</i>').replace(/(&quot;.*?&quot;)/g,'<i class="st">$1</i>').replace(/\b(private|void|new|int|string|object)\b/g,'<i class="kw">$1</i>').replace(/\b(Point|Font|Color|EventArgs|MessageBox)\b/g,'<i class="ty">$1</i>')}
+function drawCode(){var p=$('code');p.innerHTML=hl(genCode());p.classList.remove('glow');void p.offsetWidth;p.classList.add('glow')}
+
+function drawCv(){
+ var h='';
+ S.cs.forEach(function(c){if(S.run&&!c.visible)return;
+  var st='left:'+c.x+'px;top:'+c.y+'px;font-size:'+c.fs+'pt;'+(c.color?'background:'+COL[c.color]+';':'');
+  var cls='c'+(!S.run&&S.sel===c.id?' sel':'')+(!S.run&&!c.visible?' hid':'');var d=c.enabled?'':' disabled',i='';
+  if(c.type==='Label')i='<span>'+esc(c.text)+'</span>';
+  if(c.type==='TextBox')i='<input type="text" data-v="'+c.id+'" value="'+esc(c.val!=null?c.val:c.text)+'"'+d+' aria-label="'+esc(c.name)+'">';
+  if(c.type==='Button')i='<button type="button" data-b="'+c.id+'"'+d+'>'+esc(c.text)+'</button>';
+  if(c.type==='CheckBox')i='<label><input type="checkbox"'+d+'> '+esc(c.text)+'</label>';
+  h+='<div class="'+cls+'" data-id="'+c.id+'" style="'+st+'"'+(S.run?'':' tabindex="0"')+'>'+i+'</div>'});
+ if(!S.cs.length)h='<div class="empty">Suelta aquí un control<br>o pulsa uno de la caja de herramientas</div>';
+ $('cv').className='cv'+(S.run?'':' edit');$('cv').innerHTML=h}
+function drawProps(){
+ var c=byId(S.sel);
+ if(S.run){$('props').innerHTML='<p class="note" style="margin-top:10px">Modo Ejecutar: úsalo como lo haría un usuario.</p>';return}
+ if(!c){$('props').innerHTML='<p class="note" style="margin-top:10px">Selecciona un control para ver sus propiedades.</p>';return}
+ var sw=Object.keys(COL).map(function(k){return'<button type="button" class="'+(c.color===k?'on':'')+'" data-col="'+k+'" aria-label="'+(k||'Sin color')+'" style="background:'+(COL[k]||'repeating-linear-gradient(45deg,#fff,#fff 4px,#ddd 4px,#ddd 8px)')+'"></button>'}).join('');
+ var ev=c.type==='Button'?'<b>Click</b><select data-p="action">'+Object.keys(ACT).map(function(k){return'<option value="'+k+'"'+(c.action===k?' selected':'')+'>'+ACT[k]+'</option>'}).join('')+'</select>':'';
+ $('props').innerHTML='<h3>Propiedades de '+esc(c.name)+'</h3><div class="props"><b>Name</b><input type="text" data-p="name" value="'+esc(c.name)+'"><b>Text</b><input type="text" data-p="text" value="'+esc(c.text)+'"><b>BackColor</b><div class="sw">'+sw+'</div><b>Font</b><input type="range" min="8" max="24" data-p="fs" value="'+c.fs+'"><b>Enabled</b><input type="checkbox" data-p="enabled"'+(c.enabled?' checked':'')+'><b>Visible</b><input type="checkbox" data-p="visible"'+(c.visible?' checked':'')+'>'+ev+'<button class="del" type="button" data-del="1">Quitar control</button></div>'}
+function drawTool(){
+ $('tool').innerHTML=Object.keys(T).map(function(t){return'<div class="chip" draggable="true" role="button" tabindex="0" data-add="'+t+'">'+T[t][0]+' '+t+'</div>'}).join('')+'<div class="mode"><button type="button" data-mode="0" aria-pressed="'+!S.run+'">✏️ Diseñar</button><button type="button" data-mode="1" aria-pressed="'+S.run+'">▶ Ejecutar</button></div>'}
+function drawVars(){var v=S.vars;
+ if(!v&&S.lesson!==4){$('vars').innerHTML='';return}
+ var b=function(t,n,x){return'<div class="box"><small>'+t+'</small><b>'+n+'</b><span>'+(x==null?'?':x)+'</span></div>'};
+ $('vars').innerHTML=v?b('int','a',v.a)+b('int','b',v.b)+b('int','suma',v.a+v.b):b('int','a')+b('int','b')+b('int','suma')}
+
+function burst(n){var e=['🎉','⭐','✨','💜','🚀'];for(var i=0;i<n;i++){var s=document.createElement('span');s.className='cf';s.textContent=e[i%e.length];s.style.setProperty('--dx',(Math.random()*500-250)+'px');s.style.setProperty('--dy',(Math.random()*-280-30)+'px');document.body.appendChild(s);setTimeout(function(x){x.remove()},1300,s)}}
+function drawLesson(){
+ var xp=0,full=0;
+ L.forEach(function(d,i){var all=true;d.m.forEach(function(m,j){var k=i+'-'+j;if(m[1]())S.got[k]=1;if(S.got[k])xp+=10;else all=false});if(S.quizOk[i])xp+=20;S.done[i]=all&&S.quizOk[i];if(S.done[i])full++});
+ if(xp>S.xp){burst(full>S.fullN?36:8)}S.xp=xp;S.fullN=full;
+ var d=L[S.lesson],ms=d.m.map(function(m,j){return'<li class="'+(S.got[S.lesson+'-'+j]?'ok':'')+'">'+m[0]+'</li>'}).join('');
+ var nx=d.m.filter(function(m,j){return!S.got[S.lesson+'-'+j]})[0],hint,btn='';
+ if(nx)hint='Siguiente misión: <strong>'+nx[0]+'</strong>';
+ else if(!S.quizOk[S.lesson])hint='¡Misiones listas! Responde la pregunta rápida.';
+ else{hint='¡Lección completada! 🎉';if(S.lesson<L.length-1)btn='<br><button class="next" type="button" data-l="'+(S.lesson+1)+'">Siguiente lección →</button>';else hint='¡Terminaste la aventura! Ya sabes lo básico de Windows Forms. 🏆'}
+ $('lesson').innerHTML='<h2>'+d.i+' '+d.t+'</h2>'+d.b+'<h3>Misiones</h3><ul class="mis">'+ms+'</ul><h3>Pregunta rápida</h3><div class="quiz"><p>'+d.q[0]+'</p>'+d.q[1].map(function(o,i){return'<button type="button" data-q="'+i+'"'+(S.quizOk[S.lesson]&&i===d.q[2]?' class="ok"':'')+'>'+o+'</button>'}).join('')+'<p class="note" id="qfb">'+(S.quizOk[S.lesson]?'¡Correcto!':'')+'</p></div><div class="byte"><div class="face">🤖</div><div class="bub"><strong>Byte dice:</strong> '+hint+btn+'</div></div>';
+ $('xpt').textContent=xp+' XP';var tot=0;L.forEach(function(x){tot+=x.m.length*10+20});$('xpb').style.width=Math.min(100,xp/tot*100)+'%';
+ $('lv').textContent='Nivel '+(1+Math.floor(xp/50));
+ $('map').innerHTML=L.map(function(x,i){return'<button type="button" data-l="'+i+'" class="'+(S.done[i]?'done':'')+'" aria-current="'+(i===S.lesson)+'"><span class="n">'+(S.done[i]?'✓':x.i)+'</span>'+x.n+'</button>'}).join('');
+ drawVars()}
+function sync(){drawCv();drawCode();drawLesson()}
+function all(){drawTool();drawProps();sync()}
+
+function add(t,x,y){S.n[t]=(S.n[t]||0)+1;var nm=T[t][1]+S.n[t],k=S.cs.length;
+ var c={id:++S.k,type:t,name:nm,text:t==='TextBox'?'':nm,enabled:true,visible:true,color:'',action:'',fs:10,x:x!=null?x:16+(k%3)*28,y:y!=null?y:14+(k%5)*48};
+ S.cs.push(c);S.sel=c.id;S.run=false;all()}
+function modal(t){var m=$('modal');m.innerHTML='<div class="msg"><div><div class="tb"><b>Form1</b></div><p>'+esc(t)+'</p><button type="button" id="okb">Aceptar</button></div></div>';$('okb').focus();$('okb').onclick=function(){m.innerHTML=''}}
+function runBtn(c){S.clicked=true;var l=first('Label'),t=first('TextBox'),t2=first('TextBox',1),g=function(x){return(x.val!=null?x.val:x.text).trim()},bad=false;
+ if(c.action==='msg')modal('¡Hola desde C#!');
+ else if(c.action==='copy'&&l&&t)l.text=g(t);
+ else if(c.action==='color'&&l)l.color='Yellow';
+ else if(c.action==='sum'&&l&&t&&t2){var a=g(t),b=g(t2);
+  if(!/^-?\d+$/.test(a)||!/^-?\d+$/.test(b)){l.text='Error: escribe números enteros (FormatException)';S.vars=null;bad=true}
+  else{S.vars={a:+a,b:+b};l.text=String(+a+ +b);S.summed=true}}
+ sync();if(l){var e=document.querySelector('.c[data-id="'+l.id+'"]');if(e)e.classList.add('fl')}
+ if(bad){$('cv').classList.add('shk');setTimeout(function(){$('cv').classList.remove('shk')},400)}}
+
+var drag=null,cv=$('cv');
+cv.addEventListener('pointerdown',function(e){if(S.run)return;var el=e.target.closest('.c');if(!el)return;var c=byId(el.dataset.id);
+ S.sel=c.id;cv.querySelectorAll('.c').forEach(function(x){x.classList.toggle('sel',x===el)});drawProps();
+ drag={c:c,el:el,sx:e.clientX,sy:e.clientY,ox:c.x,oy:c.y,w:cv.clientWidth,h:cv.clientHeight,mv:false};el.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;if(!drag.mv&&Math.abs(dx)+Math.abs(dy)<4)return;drag.mv=true;
+ drag.c.x=Math.max(0,Math.min(drag.w-drag.el.offsetWidth,drag.ox+dx));drag.c.y=Math.max(0,Math.min(drag.h-drag.el.offsetHeight,drag.oy+dy));drag.el.style.left=drag.c.x+'px';drag.el.style.top=drag.c.y+'px'});
+cv.addEventListener('pointerup',function(){if(drag&&drag.mv){S.moved=true;drawCode();drawLesson()}drag=null});
+cv.addEventListener('dragover',function(e){e.preventDefault();cv.classList.add('over')});
+cv.addEventListener('dragleave',function(){cv.classList.remove('over')});
+cv.addEventListener('drop',function(e){e.preventDefault();cv.classList.remove('over');var t=e.dataTransfer.getData('text/plain');if(!T[t])return;var r=cv.getBoundingClientRect();add(t,Math.max(0,e.clientX-r.left-30),Math.max(0,e.clientY-r.top-14))});
+document.addEventListener('dragstart',function(e){var c=e.target.closest&&e.target.closest('[data-add]');if(c)e.dataTransfer.setData('text/plain',c.dataset.add)});
+document.addEventListener('mouseover',function(e){var c=e.target.closest&&e.target.closest('[data-add]');if(c)$('fic').textContent=c.dataset.add+': '+T[c.dataset.add][2]});
+
+document.addEventListener('click',function(e){var el=e.target.closest('[data-add],[data-mode],[data-l],[data-b],[data-del],[data-q],[data-col]');if(!el)return;var d=el.dataset;
+ if(d.add){add(d.add);return}
+ if(d.mode!==undefined){S.run=d.mode==='1';S.cs.forEach(function(c){delete c.val});S.vars=null;all();return}
+ if(d.l){S.lesson=+d.l;drawLesson();return}
+ if(d.b){runBtn(byId(d.b));return}
+ if(d.del){S.cs=S.cs.filter(function(x){return x.id!==S.sel});S.sel=null;all();return}
+ if(d.col!==undefined){var c=byId(S.sel);if(c){c.color=d.col;drawProps();sync()}return}
+ if(d.q!==undefined){var q=L[S.lesson],i=+d.q;if(i===q.q[2]){S.quizOk[S.lesson]=1;drawLesson()}else{el.className='no';$('qfb').textContent='Casi. Relee la lección y prueba otra opción.'}}});
+document.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var t=e.target;if(t.dataset&&t.dataset.add){e.preventDefault();add(t.dataset.add)}});
+function prop(e){var el=e.target;
+ if(el.dataset.v){var c0=byId(el.dataset.v);if(c0)c0.val=el.value;return}
+ var p=el.dataset.p;if(!p)return;var c=byId(S.sel);if(!c)return;
+ c[p]=el.type==='checkbox'?el.checked:(p==='fs'?+el.value:el.value);
+ if(p==='name'){c.name=c.name.replace(/\W/g,'_')||'control';if(/^\d/.test(c.name))c.name='_'+c.name}
+ sync()}
+document.addEventListener('input',prop);
+document.addEventListener('change',function(e){if(e.target.tagName==='SELECT'||e.target.type==='checkbox')prop(e)});
+all();
+})();
+</script>
+</body>
+</html>
